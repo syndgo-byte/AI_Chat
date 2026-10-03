@@ -1,4 +1,6 @@
 # AI Chat
+마지막 업데이트: 2026-10-03 20:59
+
 
 Shared rule-based classification, draft answer generation, and related answer recommendations for ops services. The classifier, answer templates, and repeat learner were copied from `ops/complaints` for the initial version. This package does not call an LLM or send answers automatically.
 
