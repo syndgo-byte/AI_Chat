@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -11,10 +11,16 @@ def manifest() -> dict:
         "id": "ai_chat",
         "kind": "module",
         "version": __version__,
-        "description": "AI classification, answer generation, and recommendation engine",
-        "provides": [],
+        "description": "고객 챗봇 · 민원 답변 · 공지 작성",
+        "provides": ["ai.chat"],
         "requires": [],
         "tools": [
+            {"name":"ai_chat.compose","description":"민원 답변·공지 초안 생성","auth_required":"user","billing_model":"free"},
+            {"name":"ai_chat.support_policy","description":"Manage service-scoped automatic answer policy","auth_required":"user","billing_model":"free"},
+            {"name":"ai_chat.review_knowledge","description":"Approve learned answers with audit history","auth_required":"user","billing_model":"free"},
+            {"name": "ai_chat.message", "description": "Chat with Google AI and draft complaint facts", "auth_required": "user", "billing_model": "free"},
+            {"name": "ai_chat.complaint_draft", "description": "Review or edit a complaint draft", "auth_required": "user", "billing_model": "free"},
+            {"name": "ai_chat.submit_complaint", "description": "Submit a confirmed complaint through the complaint module", "auth_required": "user", "billing_model": "free"},
             {
                 "name": "ai_chat.analyze",
                 "description": "Classify an item and generate a draft answer",
@@ -39,12 +45,21 @@ def manifest() -> dict:
     }
 
 
-__all__ = ["AIEngine", "Classifier", "AnswerGenerator", "AutoSendLearner", "manifest"]
+__all__ = ["AIEngine", "Classifier", "AnswerGenerator", "AutoSendLearner", "Chatbot", "GeminiProvider", "ChatError", "SupportStore", "ServiceChatClient", "manifest"]
 
 
 def __getattr__(name: str):
     # The Hub loads this file as a standalone manifest module, so package
     # imports must wait until a consumer requests the public classes.
+    if name == "SupportStore":
+        from .support import SupportStore
+        return SupportStore
+    if name == "ServiceChatClient":
+        from .client import ServiceChatClient
+        return ServiceChatClient
+    if name in {"Chatbot", "GeminiProvider", "ChatError"}:
+        from . import chatbot
+        return getattr(chatbot, name)
     if name == "AutoSendLearner":
         from .learner import AutoSendLearner
 
